@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:lab8/models/pessoa.dart';
 
 class CalculoImcWidget extends StatefulWidget {
   @override
@@ -13,6 +14,8 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
   TextEditingController pesocontroller = TextEditingController();
   TextEditingController circunferenciacontroller = TextEditingController();
 
+  Pessoa pessoa = Pessoa();
+
   String _resultadoimc, _resultadoiac;
   int _radioBtnValue = 1;
   int _radioTypeValue = 1;
@@ -20,7 +23,7 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
   void _handleRadioBtnValChange(int value) {
     setState(() {
       _resultadoiac = _resultadoimc = null;
-      _radioBtnValue = value;
+      _radioBtnValue = pessoa.sexo = value;
     });
   }
 
@@ -32,86 +35,23 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
   }
 
   void _calcularimc() {
-    double altura = double.parse(alturacontroller.text) / 100;
-    double peso = double.parse(pesocontroller.text);
-    double imc = peso / pow(altura, 2);
+    pessoa.altura = double.parse(alturacontroller.text) / 100;
+    pessoa.peso = double.parse(pesocontroller.text);
 
     setState(() {
       _resultadoiac = null;
-      _resultadoimc = imc.toStringAsFixed(2) + "\n\n" + getClassificacao(imc);
+      _resultadoimc = pessoa.imc();
     });
   }
 
   void _calculariac() {
-    double altura = double.parse(alturacontroller.text) / 100;
-    double circunferencia = double.parse(circunferenciacontroller.text);
-    double iac = circunferencia / altura * sqrt(altura);
+    pessoa.altura = double.parse(alturacontroller.text) / 100;
+    pessoa.circunferencia = double.parse(circunferenciacontroller.text);
 
     setState(() {
       _resultadoimc = null;
-      _resultadoiac =
-          iac.toStringAsFixed(2) + "\n\n" + getClassificacaoIAC(iac);
+      _resultadoiac = pessoa.iac();
     });
-  }
-
-  String getClassificacao(num imc) {
-    String strclassificacao;
-
-    if (_radioBtnValue == 1) {
-      if (imc < 18.6)
-        strclassificacao = "Abaixo do peso";
-      else if (imc < 25)
-        strclassificacao = "Peso ideal";
-      else if (imc < 30)
-        strclassificacao = "Levemente acima do peso";
-      else if (imc < 35)
-        strclassificacao = "Obesidade grau I";
-      else if (imc < 40)
-        strclassificacao = "Obesidade grau II";
-      else
-        strclassificacao = "Obesidade grau III";
-    } else {
-      if (imc < 20)
-        strclassificacao = "Abaixo do peso";
-      else if (imc < 24.9)
-        strclassificacao = "Peso ideal";
-      else if (imc < 29.9)
-        strclassificacao = "Levemente acima do peso";
-      else if (imc < 39.9)
-        strclassificacao = "Obesidade grau I";
-      else if (imc < 43)
-        strclassificacao = "Obesidade grau II";
-      else
-        strclassificacao = "Obesidade grau III";
-    }
-
-    return strclassificacao;
-  }
-
-  String getClassificacaoIAC(num iac) {
-    String strclassificacao;
-
-    if (_radioBtnValue == 0) {
-      if (iac < 8)
-        strclassificacao = "Abaixo do normal";
-      else if (iac < 20.9)
-        strclassificacao = "Adiposidade normal";
-      else if (iac < 25)
-        strclassificacao = "Sobrepeso";
-      else
-        strclassificacao = "Obesidade";
-    } else {
-      if (iac < 21)
-        strclassificacao = "Abaixo do normal";
-      else if (iac < 32.9)
-        strclassificacao = "Adiposidade normal";
-      else if (iac < 38)
-        strclassificacao = "Sobrepeso";
-      else
-        strclassificacao = "Obesidade";
-    }
-
-    return strclassificacao;
   }
 
   @override
