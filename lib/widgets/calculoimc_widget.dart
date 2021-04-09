@@ -13,6 +13,13 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
   TextEditingController pesocontroller = TextEditingController();
 
   String _resultadoimc;
+  int _radioBtnValue = 0;
+
+  void _handleRadioBtnValChange(int value) {
+    setState(() {
+      _radioBtnValue = value;
+    });
+  }
 
   void _calcularimc() {
     double altura = double.parse(alturacontroller.text) / 100;
@@ -26,18 +33,34 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
 
   String getClassificacao(num imc) {
     String strclassificacao;
-    if (imc < 18.6)
-      strclassificacao = "Abaixo do peso";
-    else if (imc < 25)
-      strclassificacao = "Peso ideal";
-    else if (imc < 30)
-      strclassificacao = "Levemente acima do peso";
-    else if (imc < 35)
-      strclassificacao = "Obesidade grau I";
-    else if (imc < 40)
-      strclassificacao = "Obesidade grau II";
-    else
-      strclassificacao = "Obesidade grau III";
+
+    if (_radioBtnValue == 1) {
+      if (imc < 18.6)
+        strclassificacao = "Abaixo do peso";
+      else if (imc < 25)
+        strclassificacao = "Peso ideal";
+      else if (imc < 30)
+        strclassificacao = "Levemente acima do peso";
+      else if (imc < 35)
+        strclassificacao = "Obesidade grau I";
+      else if (imc < 40)
+        strclassificacao = "Obesidade grau II";
+      else
+        strclassificacao = "Obesidade grau III";
+    } else {
+      if (imc < 20)
+        strclassificacao = "Abaixo do peso";
+      else if (imc < 24.9)
+        strclassificacao = "Peso ideal";
+      else if (imc < 29.9)
+        strclassificacao = "Levemente acima do peso";
+      else if (imc < 39.9)
+        strclassificacao = "Obesidade grau I";
+      else if (imc < 43)
+        strclassificacao = "Obesidade grau II";
+      else
+        strclassificacao = "Obesidade grau III";
+    }
 
     return strclassificacao;
   }
@@ -49,6 +72,26 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
       child: Container(
         child: Column(
           children: [
+            Container(
+              margin: EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Radio(
+                    value: 1,
+                    groupValue: _radioBtnValue,
+                    onChanged: _handleRadioBtnValChange,
+                  ),
+                  new Text("Homem"),
+                  Radio(
+                    value: 2,
+                    groupValue: _radioBtnValue,
+                    onChanged: _handleRadioBtnValChange,
+                  ),
+                  new Text("Mulher")
+                ],
+              ),
+            ),
             Container(
               margin: EdgeInsets.all(16),
               child: TextFormField(
