@@ -6,7 +6,7 @@ class CalculoImcScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Cálculo IMC"),
+        title: Text("Cálculo"),
       ),
       body: CalculoImcWidget(),
     );

@@ -11,13 +11,23 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
   GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   TextEditingController alturacontroller = TextEditingController();
   TextEditingController pesocontroller = TextEditingController();
+  TextEditingController circunferenciacontroller = TextEditingController();
 
-  String _resultadoimc;
-  int _radioBtnValue = 0;
+  String _resultadoimc, _resultadoiac;
+  int _radioBtnValue = 1;
+  int _radioTypeValue = 1;
 
   void _handleRadioBtnValChange(int value) {
     setState(() {
+      _resultadoiac = _resultadoimc = null;
       _radioBtnValue = value;
+    });
+  }
+
+  void _handleRadioTypeValChange(int value) {
+    setState(() {
+      _resultadoiac = _resultadoimc = null;
+      _radioTypeValue = value;
     });
   }
 
@@ -27,7 +37,20 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
     double imc = peso / pow(altura, 2);
 
     setState(() {
+      _resultadoiac = null;
       _resultadoimc = imc.toStringAsFixed(2) + "\n\n" + getClassificacao(imc);
+    });
+  }
+
+  void _calculariac() {
+    double altura = double.parse(alturacontroller.text) / 100;
+    double circunferencia = double.parse(circunferenciacontroller.text);
+    double iac = circunferencia / altura * sqrt(altura);
+
+    setState(() {
+      _resultadoimc = null;
+      _resultadoiac =
+          iac.toStringAsFixed(2) + "\n\n" + getClassificacaoIAC(iac);
     });
   }
 
@@ -65,6 +88,32 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
     return strclassificacao;
   }
 
+  String getClassificacaoIAC(num iac) {
+    String strclassificacao;
+
+    if (_radioBtnValue == 0) {
+      if (iac < 8)
+        strclassificacao = "Abaixo do normal";
+      else if (iac < 20.9)
+        strclassificacao = "Adiposidade normal";
+      else if (iac < 25)
+        strclassificacao = "Sobrepeso";
+      else
+        strclassificacao = "Obesidade";
+    } else {
+      if (iac < 21)
+        strclassificacao = "Abaixo do normal";
+      else if (iac < 32.9)
+        strclassificacao = "Adiposidade normal";
+      else if (iac < 38)
+        strclassificacao = "Sobrepeso";
+      else
+        strclassificacao = "Obesidade";
+    }
+
+    return strclassificacao;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -78,13 +127,33 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Radio(
+                    value: 0,
+                    groupValue: _radioTypeValue,
+                    onChanged: _handleRadioTypeValChange,
+                  ),
+                  new Text("IMC"),
+                  Radio(
                     value: 1,
+                    groupValue: _radioTypeValue,
+                    onChanged: _handleRadioTypeValChange,
+                  ),
+                  new Text("IAC")
+                ],
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Radio(
+                    value: 0,
                     groupValue: _radioBtnValue,
                     onChanged: _handleRadioBtnValChange,
                   ),
                   new Text("Homem"),
                   Radio(
-                    value: 2,
+                    value: 1,
                     groupValue: _radioBtnValue,
                     onChanged: _handleRadioBtnValChange,
                   ),
@@ -103,27 +172,54 @@ class _CalculoImcWidgetState extends State<CalculoImcWidget> {
                 decoration: InputDecoration(labelText: "Altura em cm:"),
               ),
             ),
-            Container(
-              margin: EdgeInsets.all(16),
-              child: TextFormField(
-                keyboardType: TextInputType.number,
-                controller: pesocontroller,
-                validator: (value) {
-                  return value.isEmpty ? "Informe o peso" : null;
-                },
-                decoration: InputDecoration(labelText: "Peso em Kg:"),
+            Visibility(
+              child: Container(
+                margin: EdgeInsets.all(16),
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  controller: pesocontroller,
+                  validator: (value) {
+                    return value.isEmpty ? "Informe o peso" : null;
+                  },
+                  decoration: InputDecoration(labelText: "Peso em Kg:"),
+                ),
               ),
+              visible: _radioTypeValue == 0,
+            ),
+            Visibility(
+              child: Container(
+                margin: EdgeInsets.all(16),
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  controller: circunferenciacontroller,
+                  validator: (value) {
+                    return value.isEmpty
+                        ? "Informe a circunferência do quadril"
+                        : null;
+                  },
+                  decoration:
+                      InputDecoration(labelText: "Circunferência do quadril:"),
+                ),
+              ),
+              visible: _radioTypeValue == 1,
             ),
             Container(
               margin: EdgeInsets.all(16),
-              child: Text(_resultadoimc == null ? "" : "IMC: $_resultadoimc"),
+              child: Text(_resultadoimc == null
+                  ? _resultadoiac == null
+                      ? ""
+                      : "IAC: $_resultadoiac"
+                  : "IMC: $_resultadoimc"),
             ),
             Container(
               margin: EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: () {
                   if (_formkey.currentState.validate()) {
-                    _calcularimc();
+                    if (_radioTypeValue == 0)
+                      _calcularimc();
+                    else
+                      _calculariac();
                   }
                 },
                 child: Text("Calcular"),
